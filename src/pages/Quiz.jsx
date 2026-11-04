@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { Card, Button, Spinner, Alert, ProgressBar } from 'react-bootstrap'
 import { FaRedo } from 'react-icons/fa'
 import { decode } from 'he'
+import { saveResult } from '../utils/storage'
 
 function shuffle(items) {
   const copy = [...items]
@@ -31,6 +32,7 @@ export default function Quiz() {
   const [index, setIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [selected, setSelected] = useState(null)
+  const savedRef = useRef(false)
   async function loadQuestions(signal) {
     setLoading(true)
     setError(null)
@@ -116,6 +118,14 @@ export default function Quiz() {
   }
 
   if (index >= questions.length) {
+    if (!savedRef.current) {
+      savedRef.current = true
+      saveResult({
+        date: new Date().toISOString(),
+        score,
+        total: questions.length,
+      })
+    }
     return (
       <Card className="mx-auto text-center shadow-sm" style={{ maxWidth: 500 }}>
         <Card.Body>
